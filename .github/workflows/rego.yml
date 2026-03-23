@@ -15,7 +15,7 @@ jobs:
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Create issue archive
         env:
@@ -49,6 +49,8 @@ jobs:
         run: |
           curl -fsSL https://github.com/open-policy-agent/conftest/releases/download/v0.65.0/conftest_0.65.0_Linux_x86_64.tar.gz \
           | tar xz -C /usr/local/bin conftest
+      - name: npm ci
+        uses: actions/setup-node@v6
       - run: npm ci
       - name: Verify Rego tests
         run: |
