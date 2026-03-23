@@ -1,41 +1,46 @@
-name: 💡 機能リクエスト
-description: 新機能のアイデアを提案する
+name: "ADR: Architecture Decision Records"
+description: なんか設計の意思決定残すやつ
 labels: ["adr"]
 body:
   - type: markdown
     attributes:
       value: |
-        機能の提案ありがとうございます。以下の情報を記入してください。
+        タイトルは短い名詞で書きましょう。英単語にしてください。例: "Use PostgreSQL for database"
+        こちらに準拠して書きましょう [Michael Nygardのフォーマット](https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions)
 
   - type: textarea
-    id: problem
+    id: context
     attributes:
-      label: 関連する問題
-      description: この機能リクエストに関連する問題を説明してください
-      placeholder: 例）〜の操作が面倒です
+      label: Context
+      description: 概要、技術的、歴史的背景について
     validations:
       required: true
 
   - type: textarea
-    id: solution
+    id: decision
     attributes:
-      label: 提案する解決策
-      description: 考えられる解決策を説明してください
-    validations:
-      required: true
-
-  - type: textarea
-    id: alternatives
-    attributes:
-      label: 代替案
-      description: 検討した他の解決策があれば記述してください
+      label: Decision
+      description: 決定事項を書きます
     validations:
       required: false
 
-  - type: textarea
-    id: additional
+  - type: dropdown
+    id: status
     attributes:
-      label: その他の情報
-      description: スクリーンショットや参考資料などがあれば追加してください
+      label: Status
+      options:
+        - proposed
+        - approved
+        - deprecated
+        - superseded
+      default: 0
+    validations:
+      required: true
+
+  - type: textarea
+    id: consequences
+    attributes:
+      label: Consequences
+      description: 決定を適用した後の状況について書きます
     validations:
       required: false
