@@ -1,0 +1,68 @@
+name: Archive Closed Issue
+
+on:
+  issues:
+    types:
+      - closed
+
+permissions:
+  contents: write
+
+jobs:
+  archive-issue:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Create issue archive
+        env:
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_BODY: ${{ github.event.issue.body }}
+          ISSUE_URL: ${{ github.event.issue.html_url }}
+          ISSUE_AUTHOR: ${{ github.event.issue.user.login }}
+          ISSUE_STATE: ${{ github.event.issue.state }}
+          ISSUE_CLOSED_AT: ${{ github.event.issue.closed_at }}
+        run: |
+          mkdir -p doc
+
+          slug="$(printf '%s' "$ISSUE_TITLE" \
+            | tr '[:upper:]' '[:lower:]' \
+            | sed -E 's/[^a-z0-9]+/-/g; s/^-+//; s/-+$//')"
+
+          if [ -z "$slug" ]; then
+            slug="issue-$ISSUE_NUMBER"
+          fi
+
+          file_path="doc/${slug}.md"
+
+          cat > "$file_path" <<EOF
+          # $ISSUE_TITLE
+
+          - Issue Number: #$ISSUE_NUMBER
+          - Author: $ISSUE_AUTHOR
+          - State: $ISSUE_STATE
+          - Closed At: $ISSUE_CLOSED_AT
+          - URL: $ISSUE_URL
+
+          ## Body
+
+          ${ISSUE_BODY:-No description provided.}
+          EOF
+
+      - name: Commit archived issue
+        env:
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add doc
+
+          if git diff --cached --quiet; then
+            exit 0
+          fi
+
+          git commit -m "Archive closed issue #$ISSUE_NUMBER"
+          git push
