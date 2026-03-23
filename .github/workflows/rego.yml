@@ -17,13 +17,13 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v6
 
-      - name: Create issue archive
+      - name: Create issue markdown file
         env:
           ISSUE_NUMBER: ${{ github.event.issue.number }}
           ISSUE_TITLE: ${{ github.event.issue.title }}
           ISSUE_BODY: ${{ github.event.issue.body }}
         run: |
-          mkdir -p docs
+          mkdir -p docs/adr
 
           slug="$(printf '%s' "$ISSUE_TITLE" \
             | tr '[:upper:]' '[:lower:]' \
@@ -33,7 +33,7 @@ jobs:
             slug="issue-$ISSUE_NUMBER"
           fi
 
-          file_path="docs/${slug}.md"
+          file_path="docs/adr/${slug}.md"
 
           cat > "$file_path" <<EOF
           # $ISSUE_TITLE
@@ -47,11 +47,14 @@ jobs:
 
       - name: npm setup
         uses: actions/setup-node@v6
+        with:
+          node-version: 24
       - name: Install conftest
         run: |
           curl -fsSL https://github.com/open-policy-agent/conftest/releases/download/v0.65.0/conftest_0.65.0_Linux_x86_64.tar.gz \
           | tar xz -C /usr/local/bin conftest
-      - run: npm ci
+      - name: Install remark-cli
+        run: npm install --global remark-cli
       - name: Verify Rego tests
         run: |
           conftest verify --policy policy/adr

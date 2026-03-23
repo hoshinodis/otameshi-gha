@@ -5,7 +5,11 @@ REMARK="./node_modules/.bin/remark"
 PROJECT_ROOT="$(pwd)"
 
 if [[ ! -x "$REMARK" ]]; then
-  echo "Error: remark-cli not found. Run 'npm install' first." >&2
+  REMARK="$(command -v remark || true)"
+fi
+
+if [[ -z "$REMARK" || ! -x "$REMARK" ]]; then
+  echo "Error: remark-cli not found. Install it locally or globally first." >&2
   exit 1
 fi
 
@@ -13,7 +17,11 @@ tmpdir=$(mktemp -d)
 trap 'rm -rf "$tmpdir"' EXIT
 
 # Collect all spec filenames as a JSON array for cross-file checks
-all_spec_filenames=$(printf '%s\n' docs/spec/*.md | xargs -I{} basename {} | jq -MRs 'split("\n") | map(select(. != ""))')
+if ls docs/spec/*.md >/dev/null 2>&1; then
+  all_spec_filenames=$(printf '%s\n' docs/spec/*.md | xargs -I{} basename {} | jq -MRs 'split("\n") | map(select(. != ""))')
+else
+  all_spec_filenames='[]'
+fi
 
 # ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -43,13 +51,12 @@ convert_to_ast() {
 
 # Run conftest for a scope if AST files exist.
 # Usage: run_conftest <scope>
-
-# run_conftest() {
-#   local scope="$1"
-#   ls "$tmpdir/$scope"/*.md &>/dev/null || return 0
-#   echo "conftest test --policy policy/$scope"
-#   (cd "$tmpdir/$scope" && conftest test --parser json --policy "$PROJECT_ROOT/policy/$scope" *.md)
-# }
+run_conftest() {
+  local scope="$1"
+  ls "$tmpdir/$scope"/*.md &>/dev/null || return 0
+  echo "conftest test --policy policy/$scope"
+  (cd "$tmpdir/$scope" && conftest test --parser json --policy "$PROJECT_ROOT/policy/$scope" *.md)
+}
 
 # ── Metadata builders ────────────────────────────────────────────────────────
 
