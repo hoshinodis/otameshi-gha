@@ -30,7 +30,7 @@ body:
       label: Status
       options:
         - Proposed
-        - Approved
+        - Accepted
         - Deprecated
         - Superseded
       default: 0
