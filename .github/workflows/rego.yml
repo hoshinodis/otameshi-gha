@@ -1,15 +1,16 @@
-name: Archive Closed Issue
+name: lint adr
 
 on:
   issues:
     types:
-      - closed
+      - edited
 
 permissions:
   contents: write
 
 jobs:
   archive-issue:
+    if: contains(github.event.issue.labels.*.name, 'adr')
     runs-on: ubuntu-latest
 
     steps:
@@ -21,10 +22,6 @@ jobs:
           ISSUE_NUMBER: ${{ github.event.issue.number }}
           ISSUE_TITLE: ${{ github.event.issue.title }}
           ISSUE_BODY: ${{ github.event.issue.body }}
-          ISSUE_URL: ${{ github.event.issue.html_url }}
-          ISSUE_AUTHOR: ${{ github.event.issue.user.login }}
-          ISSUE_STATE: ${{ github.event.issue.state }}
-          ISSUE_CLOSED_AT: ${{ github.event.issue.closed_at }}
         run: |
           mkdir -p docs
 
@@ -42,27 +39,19 @@ jobs:
           # $ISSUE_TITLE
 
           - Issue Number: #$ISSUE_NUMBER
-          - Author: $ISSUE_AUTHOR
-          - State: $ISSUE_STATE
-          - Closed At: $ISSUE_CLOSED_AT
-          - URL: $ISSUE_URL
 
           ## Body
 
           ${ISSUE_BODY:-No description provided.}
           EOF
 
-      - name: Commit archived issue
-        env:
-          ISSUE_NUMBER: ${{ github.event.issue.number }}
+      - name: Install conftest
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add doc
-
-          if git diff --cached --quiet; then
-            exit 0
-          fi
-
-          git commit -m "Archive closed issue #$ISSUE_NUMBER"
-          git push
+          curl -fsSL https://github.com/open-policy-agent/conftest/releases/download/v0.65.0/conftest_0.65.0_Linux_x86_64.tar.gz \
+          | tar xz -C /usr/local/bin conftest
+      - run: npm ci
+      - name: Verify Rego tests
+        run: |
+          conftest verify --policy policy/adr
+      - name: Lint docs
+        run: bash _scripts/rego.sh

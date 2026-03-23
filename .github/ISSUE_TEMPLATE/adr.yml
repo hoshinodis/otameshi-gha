@@ -12,7 +12,7 @@ body:
     id: context
     attributes:
       label: Context
-      description: 概要、技術的、歴史的背景について
+      description: 概要、技術的、歴史的背景について ※ #### から使ってください
     validations:
       required: true
 
@@ -20,7 +20,7 @@ body:
     id: decision
     attributes:
       label: Decision
-      description: 決定事項を書きます
+      description: 決定事項を書きます ※ #### から使ってください
     validations:
       required: false
 
@@ -29,10 +29,10 @@ body:
     attributes:
       label: Status
       options:
-        - proposed
-        - approved
-        - deprecated
-        - superseded
+        - Proposed
+        - Approved
+        - Deprecated
+        - Superseded
       default: 0
     validations:
       required: true
@@ -41,6 +41,6 @@ body:
     id: consequences
     attributes:
       label: Consequences
-      description: 決定を適用した後の状況について書きます
+      description: 決定を適用した後の状況について書きます ※ #### から使ってください
     validations:
       required: false
