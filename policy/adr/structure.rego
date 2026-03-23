@@ -40,8 +40,8 @@ deny contains msg if {
 }
 
 # Rule 6: Status must be one of the allowed values
-# Check the first paragraph after the ## Status heading
-_adr_valid_statuses := {"Accepted", "Deprecated", "Superseded"}
+# Check the first paragraph after the ### Status heading
+_adr_valid_statuses := {"Proposed", "Accepted", "Deprecated", "Superseded"}
 
 deny contains msg if {
 	_adr_filename != ""
@@ -53,7 +53,7 @@ deny contains msg if {
 	# Find the next paragraph after Status heading
 	next_node := input.children[i + 1]
 	next_node.type == "paragraph"
-	status_text := concat("", [c.value | some c in next_node.children; c.type == "text"])
+	status_text := trim_space(concat("", [c.value | some c in next_node.children; c.type == "text"]))
 	not status_text in _adr_valid_statuses
 	msg := sprintf("ADR Status must be one of {Proposed, Accepted, Deprecated, Superseded}, got: '%s'", [status_text])
 }
