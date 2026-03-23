@@ -45,12 +45,12 @@ jobs:
           ${ISSUE_BODY:-No description provided.}
           EOF
 
+      - name: npm setup
+        uses: actions/setup-node@v6
       - name: Install conftest
         run: |
           curl -fsSL https://github.com/open-policy-agent/conftest/releases/download/v0.65.0/conftest_0.65.0_Linux_x86_64.tar.gz \
           | tar xz -C /usr/local/bin conftest
-      - name: npm ci
-        uses: actions/setup-node@v6
       - run: npm ci
       - name: Verify Rego tests
         run: |
