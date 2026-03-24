@@ -5,9 +5,6 @@ contact_links:
     about: ためし
 
 defaults:
-  - template: "bug_report.yml"
-    name: "🐛 バグ報告"
-    about: "バグ報告"
   - template: "adr.yml"
     name: "💡 ADR"
     about: "ADR"
